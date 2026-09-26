@@ -682,13 +682,25 @@
         }
 
         function deleteTransaction(id) {
-            if (confirm("Yakin ingin menghapus transaksi ini?")) {
-                transactions = transactions.filter(t => t.id !== id);
-                syncToCloud();
-                renderApp();
-            }
+    if (confirm("Yakin ingin menghapus transaksi ini?")) {
+        // 1. Hapus transaksi dari daftar memori
+        transactions = transactions.filter(t => t.id !== id);
+        
+        // 2. Simpan daftar baru ke LocalStorage browser
+        localStorage.setItem('off_transactions', JSON.stringify(transactions));
+        
+        // 3. Jika terhubung Firebase, perbarui server
+        if (activeCode && typeof db !== 'undefined') {
+            db.ref('families/' + activeCode).set({
+                transactions: transactions,
+                categories: categories
+            });
         }
-
+        
+        // 4. Tampilkan ulang halaman
+        renderApp();
+    }
+}
         // 9. FITUR TAMBAH KATEGORI
         function promptAddCategory(type) {
             const newCat = prompt("Masukkan Nama Kategori Baru:");
