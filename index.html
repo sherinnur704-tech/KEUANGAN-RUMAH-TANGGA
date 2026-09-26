@@ -842,7 +842,42 @@
                 }
             };
             reader.readAsText(file);
-            localStorage.clear();
+            // === FUNGSI EDIT & HAPUS AKTIF ===
+    function openEditModal(id) {
+        const tx = transactions.find(t => t.id === id);
+        if (!tx) return alert('Data tidak ditemukan');
+
+        if (document.getElementById('editTxId')) document.getElementById('editTxId').value = tx.id;
+        if (document.getElementById('txType')) document.getElementById('txType').value = tx.type;
+        if (document.getElementById('modalTitle')) document.getElementById('modalTitle').textContent = 'Edit Transaksi';
+
+        if (typeof populateCategories === 'function') {
+            populateCategories(tx.type, tx.category);
+        }
+
+        if (document.getElementById('txDate')) document.getElementById('txDate').value = tx.date;
+        if (document.getElementById('txAmount')) document.getElementById('txAmount').value = tx.amount;
+        if (document.getElementById('txAmountFormatted')) {
+            document.getElementById('txAmountFormatted').value = Number(tx.amount).toLocaleString('id-ID');
+        }
+        if (document.getElementById('txNote')) document.getElementById('txNote').value = tx.note || '';
+
+        const modal = document.getElementById('transactionModal');
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    function deleteTx(id) {
+        if (confirm("Yakin ingin menghapus transaksi ini?")) {
+            transactions = transactions.filter(t => t.id !== id);
+            if (typeof syncToCloud === 'function') syncToCloud();
+            else localStorage.setItem('off_transactions', JSON.stringify(transactions));
+            if (typeof renderApp === 'function') renderApp();
+        }
+    }
+    
+    function deleteTransaction(id) {
+        deleteTx(id);
+    }
         }
     </script>
 </body>
